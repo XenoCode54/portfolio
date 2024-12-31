@@ -32,7 +32,9 @@ export const PinContainer = ({
     <div
       onClick={() => {
         if (href) {
-          window.open(href, "_blank");
+          if (typeof window !== "undefined") {
+            window.open(href, "_blank");
+          }
         }
       }}
       className={cn(

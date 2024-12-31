@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 export const CanvasRevealEffect = ({
@@ -196,16 +196,18 @@ const ShaderMaterial = ({
   let lastFrameTime = 0;
 
   useFrame(({ clock }) => {
-    if (!ref.current) return;
-    const timestamp = clock.getElapsedTime();
-    if (timestamp - lastFrameTime < 1 / maxFps) {
-      return;
-    }
-    lastFrameTime = timestamp;
+    if (typeof window !== "undefined") {
+      if (!ref.current) return;
+      const timestamp = clock.getElapsedTime();
+      if (timestamp - lastFrameTime < 1 / maxFps) {
+        return;
+      }
+      lastFrameTime = timestamp;
 
-    const material: any = ref.current.material;
-    const timeLocation = material.uniforms.u_time;
-    timeLocation.value = timestamp;
+      const material: any = ref.current.material;
+      const timeLocation = material.uniforms.u_time;
+      timeLocation.value = timestamp;
+    }
   });
 
   const getUniforms = () => {
@@ -230,7 +232,7 @@ const ShaderMaterial = ({
         case "uniform3fv":
           preparedUniforms[uniformName] = {
             value: uniform.value.map((v: number[]) =>
-              new THREE.Vector3().fromArray(v)
+              new THREE.Vector3().fromArray(v),
             ),
             type: "3fv",
           };
@@ -248,9 +250,11 @@ const ShaderMaterial = ({
     }
 
     preparedUniforms["u_time"] = { value: 0, type: "1f" };
-    preparedUniforms["u_resolution"] = {
-      value: new THREE.Vector2(size.width * 2, size.height * 2),
-    }; // Initialize u_resolution
+    if (typeof window !== "undefined") {
+      preparedUniforms["u_resolution"] = {
+        value: new THREE.Vector2(size.width * 2, size.height * 2),
+      }; // Initialize u_resolution
+    }
     return preparedUniforms;
   };
 

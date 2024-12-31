@@ -25,7 +25,9 @@ export const InfiniteMovingCards = ({
   const scrollerRef = React.useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    addAnimation();
+    if (typeof window !== "undefined") {
+      addAnimation();
+    }
   }, []);
   const [start, setStart] = useState(false);
   function addAnimation() {
